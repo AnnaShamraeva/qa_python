@@ -6,7 +6,7 @@ from main import BooksCollector # импортируем класс BooksCollect
 # обязательно указывать префикс Test
 class TestBooksCollector:
       
-# 1 Проверка добавления новой книги
+# 1 Проверка добавления новой книги (add_new_book)
 # 1.1 Проверка добавления одной новой книги
     def test_add_new_book_plus_one_book(self): # в имени функции test_ название тестируемого метода указание что тестируем
 # self показывает, что этот метод является методом класса
@@ -45,62 +45,82 @@ class TestBooksCollector:
         collector = BooksCollector() # создаем объект класса BooksCollector
         collector.add_new_book('Новая книга фантастики')
         collector.set_book_genre('Новая книга фантастики', 'Фантастика')
-        assert collector.get_books_genre('Новая книга фантастики') == 'Фантастика'
+        assert collector.get_books_genre() == {'Новая книга фантастики': 'Фантастика'}
 
 # 2.2 Проверка невалидного жанра если книга есть в словаре books_genre и её жанр не входит в список genre. 
 
-        def test_set_book_genre_valid(self):
-            collector = BooksCollector() # создаем объект класса BooksCollector
-            collector.add_new_book('Новая книга болтовни')
-            collector.set_book_genre('Новая книга болтовни', 'Болтовня')
-            assert collector.get_books_genre() == ''
+    def test_set_book_genre_not_valid(self):
+        collector = BooksCollector() # создаем объект класса BooksCollector
+        collector.add_new_book('Новая книга болтовни')
+        collector.set_book_genre('Новая книга болтовни', 'Болтовня')
+        assert collector.get_books_genre() == {'Новая книга болтовни': ''}
+
+# 2.3 Проверка валидного жанра если книги нет в словаре books_genre.  
+
+    def test_set_book_genre_book_not_in_book_genre(self):
+        collector = BooksCollector() # создаем объект класса BooksCollector
+        collector.set_book_genre('Новая книга с детективом', 'Детектив')
+        assert collector.get_books_genre() == {}
 
 # 3 Проверка получения жанра книги по её имени
     
     def test_get_book_genre_return_genre_set(self):   
         collector = BooksCollector() # создаем объект класса BooksCollector
-        assert collector.get_books_genre('Новая книга ужасов') == 'Ужасы'
+        collector.add_new_book('Новая книга фантастики')
+        collector.set_book_genre('Новая книга фантастики', 'Фантастика')
+        assert collector.get_book_genre('Новая книга фантастики') == 'Фантастика'
         # здесь и далее замена создания объекта (экземпляра класса) на использование фикстуры collector через параметр
 
-# 5 Проверка вывода списка книг с определённым жанром
+# 4 Проверка вывода списка книг с определённым жанром
 
     def test_get_books_with_specific_genre_get_book_by_genre(self):    
         collector = BooksCollector() # создаем объект класса BooksCollector
-        assert len(collector.get_books_with_specific_genre('Ужасы')) == 1
+        collector.add_new_book('Новая книга ужасов')
+        collector.set_book_genre('Новая книга ужасов','Ужасы')
+        collector.add_new_book('Новая книга ужасов 2')
+        collector.set_book_genre('Новая книга ужасов 2','Ужасы')
+        assert len(collector.get_books_with_specific_genre('Ужасы')) == 2
 
-# 6 Проверка получения книг для детей
+# 5 Проверка получения книг для детей
      
-    def test_get_books_for_children_get_book_without_age_rating_possible(self):
+    def test_get_books_for_children_get_book_without_age_rating_possible(self, random_book):
+        assert len(random_book.get_books_for_children()) == 3
+
+# 6 Проверка добавления книги в Избранное
+# 6.1 Проверка добавления книги в Избранное
+
+    def test_add_book_in_favorites_add_new_book_possible(self):
         collector = BooksCollector() # создаем объект класса BooksCollector
-        assert len(collector.get_books_for_children()) == 1
-
-# 7 Проверка добавления книги в Избранное
-# 7.1 Проверка добавления книги в Избранное
-
-    def test_add_book_in_favorites_add_new_book_possible(self, collector):
+        collector.add_new_book('Новая книга ужасов')
+        collector.set_book_genre('Новая книга ужасов','Ужасы')
         collector.add_book_in_favorites('Новая книга ужасов')
         assert len(collector.get_list_of_favorites_books()) == 1
 
-# 7.2 Проверка двойного добавления книги в Избранное
+# 6.2 Проверка двойного добавления книги в Избранное
 
     def test_add_book_in_favorites_add_one_book_two_times_not_possible(self):
         collector = BooksCollector() # создаем объект класса BooksCollector
+        collector.add_new_book('Новая книга ужасов')
+        collector.set_book_genre('Новая книга ужасов','Ужасы')
         collector.add_book_in_favorites('Новая книга ужасов')
         collector.add_book_in_favorites('Новая книга ужасов')
         assert len(collector.get_list_of_favorites_books()) == 1
 
-# 8 Проверка удаления книги из Избранного
+# 7 Проверка удаления книги из Избранного
 
     def test_delete_book_from_favorites_delete_book_possible(self):
         collector = BooksCollector() # создаем объект класса BooksCollector
         collector.add_book_in_favorites('Новая книга ужасов')
+        collector.set_book_genre('Новая книга ужасов','Ужасы')
         collector.delete_book_from_favorites('Новая книга ужасов')
         favorites = collector.get_list_of_favorites_books()
         assert 'Новая книга ужасов' not in favorites
 
-# 9 Проверка получения списка Избранных книг
+# 8 Проверка получения списка Избранных книг
 
     def test_get_list_of_favorites_books_get_list_of_favorites_books_successful(self):
         collector = BooksCollector() # создаем объект класса BooksCollector
+        collector.add_new_book('Новая книга ужасов')
+        collector.set_book_genre('Новая книга ужасов','Ужасы')
         collector.add_book_in_favorites('Новая книга ужасов')
         assert len(collector.get_list_of_favorites_books()) == 1

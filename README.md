@@ -1,2 +1,2 @@
-# qa_python
+# Tests_python
 Набор тестов покрывает приложение BooksCollector
